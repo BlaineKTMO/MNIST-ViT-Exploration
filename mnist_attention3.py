@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
-import gc
 
 class MultiHeadedAttention(nn.Module):
     def __init__(self, d_model: int, num_heads: int):
@@ -170,10 +169,9 @@ def main():
     
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    
   
     # Training loop
-    num_epochs = 10
+    num_epochs = 30
     train_losses = []
     test_losses = []
     test_accuracies = []
@@ -184,7 +182,6 @@ def main():
     sample_true = []
     sample_preds = []
     all_attentions = []
-        
 
     for epoch in range(num_epochs):
         # Train with progress bar
@@ -204,7 +201,6 @@ def main():
             loss.backward()
             optimizer.step()
 
-            torch.save(model.state_dict(), 'model.pth')
             
             epoch_train_loss += loss.item()
             train_bar.set_postfix({
@@ -212,6 +208,7 @@ def main():
                 'avg_loss': f"{epoch_train_loss/(batch_idx+1):.4f}"
             })
 
+        torch.save(model.state_dict(), 'model.pth')
         train_loss = epoch_train_loss / len(train_loader)
         train_losses.append(train_loss)
         
@@ -275,13 +272,6 @@ def main():
                  color='green' if sample_true[i] == sample_preds[i] else 'red')
         plt.axis('off')
     
-    # # Attention map (dummy example - replace with actual implementation)
-    # plt.subplot(2, 5, 6)
-    # attention_map = plot_attention_maps(sample_images, sample_true, sample_preds, all_attentions)  # Replace with actual attention map
-    # plt.imshow(attention_map, cmap='hot')
-    # plt.title('Attention Map')
-    # plt.axis('off')
-    
     # Training curves
     plt.subplot(2, 3, 2)
     sns.lineplot(x=range(1, num_epochs+1), y=train_losses, marker='o', label='Train Loss')
@@ -309,6 +299,7 @@ def main():
     plt.tight_layout()
     plt.show()
 
+# This doesn't work :(
 def plot_attention_maps(images, true_labels, pred_labels, attn_weights):
     plt.figure(figsize=(15, 10))
     
