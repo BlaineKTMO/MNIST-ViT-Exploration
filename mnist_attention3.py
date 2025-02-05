@@ -173,7 +173,7 @@ def main():
     
   
     # Training loop
-    num_epochs = 1
+    num_epochs = 10
     train_losses = []
     test_losses = []
     test_accuracies = []
@@ -188,7 +188,7 @@ def main():
 
     for epoch in range(num_epochs):
         # Train with progress bar
-        model.load_state_dict(torch.load('/home/blaine/neural_networks/model.pth'))
+        model.load_state_dict(torch.load('model.pth'))
         model.train()
         epoch_train_loss = 0
         train_bar = tqdm(train_loader, 
@@ -223,12 +223,11 @@ def main():
                     desc=f"🔍 Epoch {epoch+1}/{num_epochs} [Testing]", 
                     bar_format="{l_bar}{bar:20}{r_bar}",
                     colour="#ffaa00")
-        
 
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(test_bar):
                 data, target = data.to(device), target.to(device)
-                output, attn_weights = model(data, return_attn=True)
+                output = model(data, return_attn=False)
                 
                 # Calculate metrics
                 loss = criterion(output, target)
@@ -251,7 +250,7 @@ def main():
                 all_preds.extend(pred.cpu().numpy())
                 all_true.extend(target.cpu().numpy())
 
-                all_attentions.append(attn_weights)
+                # all_attentions.append(attn_weights)
         
         # Calculate final metrics
         test_loss /= len(test_loader)
@@ -276,12 +275,12 @@ def main():
                  color='green' if sample_true[i] == sample_preds[i] else 'red')
         plt.axis('off')
     
-    # Attention map (dummy example - replace with actual implementation)
-    plt.subplot(2, 5, 6)
-    attention_map = plot_attention_maps(sample_images, sample_true, sample_preds, all_attentions)  # Replace with actual attention map
-    plt.imshow(attention_map, cmap='hot')
-    plt.title('Attention Map')
-    plt.axis('off')
+    # # Attention map (dummy example - replace with actual implementation)
+    # plt.subplot(2, 5, 6)
+    # attention_map = plot_attention_maps(sample_images, sample_true, sample_preds, all_attentions)  # Replace with actual attention map
+    # plt.imshow(attention_map, cmap='hot')
+    # plt.title('Attention Map')
+    # plt.axis('off')
     
     # Training curves
     plt.subplot(2, 3, 2)
